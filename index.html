@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Firmenlauf 2026</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body { font-family: Arial, sans-serif; margin: 20px; }
+form { max-width: 400px; margin-bottom: 20px; }
+input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+button { cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px; }
+button:hover { background: #45a049; }
+label { font-weight: bold; display: block; margin-top: 10px; }
+small { display: block; font-weight: normal; color: #555; margin-bottom: 5px; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+th { background: #f0f0f0; }
+.error { color: red; margin-top: 10px; }
+@media (max-width: 500px) {
+  body { margin: 10px; }
+  input, button { font-size: 16px; }
+  table { font-size: 14px; }
+}
+#downloadBtn { margin-top:10px; display:none; }
+</style>
+</head>
+<body>
+
+<h2>🏃 Firmenlauf Anmeldung</h2>
+
+<form id="surveyForm">
+    <label>Teilnehmer (mindestens 1, max. 3)</label>
+    <input id="p1" placeholder="Person 1" required>
+    <input id="p2" placeholder="Person 2">
+    <input id="p3" placeholder="Person 3">
+    
+    <label>Team</label>
+    <input id="team" value="Zufall">
+    <small>Team eintragen. Bei "Zufall" wird der Benutzer einem Team zugeordnet, bzw. bei vollen Teams ein neues Team mit Zufallsnamen erstellt.</small>
+    
+    <button type="submit">Absenden</button>
+</form>
+
+<button id="downloadBtn">📥 Teams als Excel herunterladen</button>
+
+<div id="error" class="error"></div>
+
+<h2>📋 Teams</h2>
+<table>
+<thead>
+<tr>
+<th>Team</th>
+<th>Teilnehmer</th>
+</tr>
+</thead>
+<tbody id="tableBody"></tbody>
+</table>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, collection, doc, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+/* 🔥 Firebase Config */
+const firebaseConfig = {
+  apiKey: "AIzaSyDTk0mMhZ6eX1jzZuFIYEoHY38YZUcEpns",
+  authDomain: "firmenlauf-8e694.firebaseapp.com",
+  projectId: "firmenlauf-8e694",
+  storageBucket: "firmenlauf-8e694.firebasestorage.app",
+  messagingSenderId: "740730808511",
+  appId: "1:740730808511:web:11a5d055eb10790a453e0a",
+  measurementId: "G-N1BFHE44SJ"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const teamsRef = collection(db, "teams");
+
+const error = document.getElementById("error");
+const downloadBtn = document.getElementById("downloadBtn");
+
+/* Teamnamen für Zufallsteams */
+const nameA = ["Byte","CPU","RAM","Pixel","Code","Server","GPU","Kernel","Disk","Cache"];
+const nameB = ["Runner","Sprint","Dash","Speed","Marathon","Track","Stride","Loop","Flow","Turbo"];
+function randomTeamName() {
+    const partA = nameA[Math.floor(Math.random()*nameA.length)];
+    const partB = nameB[Math.floor(Math.random()*nameB.length)];
+    const num = Math.floor(Math.random()*1000);
+    return `${partA} ${partB} ${num}`;
+}
+
+/* Hilfsfunktionen */
+async function getAllTeams() {
+    const snap = await getDocs(teamsRef);
+    const teams = {};
+    snap.forEach(d => teams[d.id] = d.data().members);
+    return teams;
+}
+
+function nameExists(name, teams) {
+    return Object.values(teams).some(members =>
+        members.some(m => m.toLowerCase() === name.toLowerCase())
+    );
+}
+
+async function findOrCreateFreeTeam(teams) {
+    for (const t in teams) {
+        if (teams[t].length < 3) return t;
+    }
+    let name;
+    do { name = randomTeamName(); } while (teams[name]);
+    await setDoc(doc(db, "teams", name), { members: [] });
+    return name;
+}
+
+/* Klick-Zähler für versteckten Download */
+let clickCount = 0;
+const teamInput = document.getElementById("team");
+teamInput.addEventListener("click", () => {
+    clickCount++;
+    if (clickCount >= 5) downloadBtn.style.display = "block";
+});
+
+/* Formular-Submit */
+surveyForm.addEventListener("submit", async e => {
+    e.preventDefault();
+    error.textContent = "";
+
+    const persons = [p1.value.trim(), p2.value.trim(), p3.value.trim()].filter(Boolean);
+    if (persons.length === 0) return;
+
+    let teams = await getAllTeams();
+
+    // Doppelname prüfen
+    for (const person of persons) {
+        if (nameExists(person, teams)) {
+            error.textContent = `❌ "${person}" ist bereits in einem Team eingetragen.`;
+            return;
+        }
+    }
+
+    let teamNameInput = teamInput.value.trim();
+    let teamName = "";
+
+    // Logik: 2–3 Personen → immer neues Team
+    if (persons.length > 1) {
+        if (!teamNameInput || teamNameInput.toLowerCase() === "zufall") {
+            let name;
+            do { name = randomTeamName(); } while (teams[name]);
+            await setDoc(doc(db, "teams", name), { members: [] });
+            teamName = name;
+        } else {
+            // Benutzerdefinierter Name → nur wenn noch nicht existiert
+            if (teams[teamNameInput]) {
+                error.textContent = `❌ Teamname "${teamNameInput}" existiert bereits. Bitte anderen Namen wählen.`;
+                return;
+            }
+            await setDoc(doc(db, "teams", teamNameInput), { members: [] });
+            teamName = teamNameInput;
+        }
+    } else {
+        // 1 Person → alte Logik
+        if (!teamNameInput || teamNameInput.toLowerCase() === "zufall") {
+            teamName = await findOrCreateFreeTeam(teams);
+        } else if (teams[teamNameInput] && teams[teamNameInput].length >= 3) {
+            const ok = confirm(`Das Team "${teamNameInput}" ist voll. Willst du einem freien Team per Zufall zugeteilt werden?`);
+            if (!ok) return;
+            teamName = await findOrCreateFreeTeam(teams);
+        } else {
+            teamName = teamNameInput;
+        }
+    }
+
+    let members = teams[teamName] || [];
+    for (const person of persons) {
+        if (members.length >= 3) {
+            teams = await getAllTeams();
+            teamName = await findOrCreateFreeTeam(teams);
+            members = [];
+        }
+        members.push(person);
+    }
+
+    await setDoc(doc(db, "teams", teamName), { members }, { merge: true });
+
+    e.target.reset();
+    teamInput.value = "Zufall";
+});
+
+/* Live Tabelle */
+onSnapshot(teamsRef, snap => {
+    tableBody.innerHTML = "";
+    snap.forEach(d => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${d.id}</td><td>${d.data().members.join(", ")}</td>`;
+        tableBody.appendChild(tr);
+    });
+});
+
+/* CSV Download (Excel-kompatibel) */
+downloadBtn.addEventListener("click", async () => {
+    const teams = await getAllTeams();
+    let csv = "Team,Teilnehmer\n";
+    for (const t in teams) {
+        csv += `"${t}","${teams[t].join(", ")}"\n`;
+    }
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `firmenlauf_teams.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+});
+</script>
+
+</body>
+</html>
