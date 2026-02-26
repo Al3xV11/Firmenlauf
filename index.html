@@ -121,6 +121,9 @@ th { background: #f0f0f0; }
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
+<button id="downloadBtn" style="display:none; margin-top:10px;">
+⬇️ Teams als Excel herunterladen
+</button>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -233,6 +236,40 @@ onSnapshot(teamsRef,snap=>{
     ).join("<br>");
     tableBody.innerHTML+=`<tr class="${cls}"><td>${d.id}</td><td>${members}</td></tr>`;
   });
+});
+let secretClicks = 0;
+const teamInput = document.getElementById("team");
+const downloadBtn = document.getElementById("downloadBtn");
+
+teamInput.addEventListener("click", () => {
+  secretClicks++;
+  if (secretClicks === 5) {
+    downloadBtn.style.display = "block";
+    alert("Admin-Funktion aktiviert 👀");
+  }
+});
+downloadBtn.addEventListener("click", async () => {
+  const snap = await getDocs(teamsRef);
+
+  let csv = "Team,Name,T-Shirt,Größe\n";
+
+  snap.forEach(doc => {
+    const team = doc.id;
+    const members = doc.data().members || [];
+    members.forEach(p => {
+      csv += `"${team}","${p.name}","${p.tshirt}","${p.size || ""}"\n`;
+    });
+  });
+
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "firmenlauf_teams.csv";
+  a.click();
+
+  URL.revokeObjectURL(url);
 });
 </script>
 
