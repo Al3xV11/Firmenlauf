@@ -6,8 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
 body { font-family: Arial, sans-serif; margin: 20px; }
-form { max-width: 400px; margin-bottom: 20px; }
-input, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
+form { max-width: 600px; margin-bottom: 20px; }
+input, select, button { padding: 10px; margin: 5px 0; width: 100%; box-sizing: border-box; }
 button { cursor: pointer; background: #4CAF50; color: white; border: none; border-radius: 5px; }
 button:hover { background: #45a049; }
 label { font-weight: bold; display: block; margin-top: 10px; }
@@ -18,10 +18,11 @@ th { background: #f0f0f0; }
 .error { color: red; margin-top: 10px; }
 @media (max-width: 500px) {
   body { margin: 10px; }
-  input, button { font-size: 16px; }
+  input, select, button { font-size: 16px; }
   table { font-size: 14px; }
 }
 #downloadBtn { margin-top:10px; display:none; }
+.person-group { margin-bottom: 15px; }
 </style>
 </head>
 <body>
@@ -29,11 +30,84 @@ th { background: #f0f0f0; }
 <h2>🏃 Firmenlauf Anmeldung</h2>
 
 <form id="surveyForm">
-    <label>Teilnehmer (mindestens 1, max. 3)</label>
-    <input id="p1" placeholder="Person 1" required>
-    <input id="p2" placeholder="Person 2">
-    <input id="p3" placeholder="Person 3">
-    
+    <div class="person-group">
+        <label>Person 1</label>
+        <input id="p1" placeholder="Name" required>
+        <select id="tshirt1">
+            <option value="Nein">T-Shirt: Nein</option>
+            <option value="Ja">T-Shirt: Ja</option>
+        </select>
+        <select id="size1">
+            <option value="">Größe</option>
+            <optgroup label="Frauen">
+                <option value="Frauen S">S</option>
+                <option value="Frauen M">M</option>
+                <option value="Frauen L">L</option>
+                <option value="Frauen XL">XL</option>
+                <option value="Frauen 2XL">2XL</option>
+            </optgroup>
+            <optgroup label="Männer">
+                <option value="Männer S">S</option>
+                <option value="Männer M">M</option>
+                <option value="Männer L">L</option>
+                <option value="Männer XL">XL</option>
+                <option value="Männer 2XL">2XL</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <div class="person-group">
+        <label>Person 2</label>
+        <input id="p2" placeholder="Name">
+        <select id="tshirt2">
+            <option value="Nein">T-Shirt: Nein</option>
+            <option value="Ja">T-Shirt: Ja</option>
+        </select>
+        <select id="size2">
+            <option value="">Größe</option>
+            <optgroup label="Frauen">
+                <option value="Frauen S">S</option>
+                <option value="Frauen M">M</option>
+                <option value="Frauen L">L</option>
+                <option value="Frauen XL">XL</option>
+                <option value="Frauen 2XL">2XL</option>
+            </optgroup>
+            <optgroup label="Männer">
+                <option value="Männer S">S</option>
+                <option value="Männer M">M</option>
+                <option value="Männer L">L</option>
+                <option value="Männer XL">XL</option>
+                <option value="Männer 2XL">2XL</option>
+            </optgroup>
+        </select>
+    </div>
+
+    <div class="person-group">
+        <label>Person 3</label>
+        <input id="p3" placeholder="Name">
+        <select id="tshirt3">
+            <option value="Nein">T-Shirt: Nein</option>
+            <option value="Ja">T-Shirt: Ja</option>
+        </select>
+        <select id="size3">
+            <option value="">Größe</option>
+            <optgroup label="Frauen">
+                <option value="Frauen S">S</option>
+                <option value="Frauen M">M</option>
+                <option value="Frauen L">L</option>
+                <option value="Frauen XL">XL</option>
+                <option value="Frauen 2XL">2XL</option>
+            </optgroup>
+            <optgroup label="Männer">
+                <option value="Männer S">S</option>
+                <option value="Männer M">M</option>
+                <option value="Männer L">L</option>
+                <option value="Männer XL">XL</option>
+                <option value="Männer 2XL">2XL</option>
+            </optgroup>
+        </select>
+    </div>
+
     <label>Team</label>
     <input id="team" value="Zufall">
     <small>Team eintragen. Bei "Zufall" wird der Benutzer einem Team zugeordnet, bzw. bei vollen Teams ein neues Team mit Zufallsnamen erstellt.</small>
@@ -51,6 +125,8 @@ th { background: #f0f0f0; }
 <tr>
 <th>Team</th>
 <th>Teilnehmer</th>
+<th>T-Shirt</th>
+<th>Größe</th>
 </tr>
 </thead>
 <tbody id="tableBody"></tbody>
@@ -61,9 +137,8 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, doc, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-/* 🔥 Firebase Config */
 const firebaseConfig = {
-  apiKey: "AIzaSyDTk0mMhZ6eX1jzZuFIYEoHY38YZUcEpns",
+  apiKey: "DEIN_FIREBASE_KEY",
   authDomain: "firmenlauf-8e694.firebaseapp.com",
   projectId: "firmenlauf-8e694",
   storageBucket: "firmenlauf-8e694.firebasestorage.app",
@@ -75,17 +150,16 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
+  provider: new ReCaptchaV3Provider("DEIN_RECAPTCHA_KEY"),
   isTokenAutoRefreshEnabled: true
 });
-  
+
 const db = getFirestore(app);
 const teamsRef = collection(db, "teams");
 
 const error = document.getElementById("error");
 const downloadBtn = document.getElementById("downloadBtn");
 
-/* Teamnamen für Zufallsteams */
 const nameA = ["Byte","CPU","RAM","Pixel","Code","Server","GPU","Kernel","Disk","Cache"];
 const nameB = ["Runner","Sprint","Dash","Speed","Marathon","Track","Stride","Loop","Flow","Turbo"];
 function randomTeamName() {
@@ -95,7 +169,6 @@ function randomTeamName() {
     return `${partA} ${partB} ${num}`;
 }
 
-/* Hilfsfunktionen */
 async function getAllTeams() {
     const snap = await getDocs(teamsRef);
     const teams = {};
@@ -105,7 +178,7 @@ async function getAllTeams() {
 
 function nameExists(name, teams) {
     return Object.values(teams).some(members =>
-        members.some(m => m.toLowerCase() === name.toLowerCase())
+        members.some(m => m.name.toLowerCase() === name.toLowerCase())
     );
 }
 
@@ -132,15 +205,19 @@ surveyForm.addEventListener("submit", async e => {
     e.preventDefault();
     error.textContent = "";
 
-    const persons = [p1.value.trim(), p2.value.trim(), p3.value.trim()].filter(Boolean);
+    const persons = [
+        {name: p1.value.trim(), tshirt: document.getElementById("tshirt1").value, size: document.getElementById("size1").value},
+        {name: p2.value.trim(), tshirt: document.getElementById("tshirt2").value, size: document.getElementById("size2").value},
+        {name: p3.value.trim(), tshirt: document.getElementById("tshirt3").value, size: document.getElementById("size3").value}
+    ].filter(p => p.name);
+
     if (persons.length === 0) return;
 
     let teams = await getAllTeams();
 
-    // Doppelname prüfen
     for (const person of persons) {
-        if (nameExists(person, teams)) {
-            error.textContent = `❌ "${person}" ist bereits in einem Team eingetragen.`;
+        if (nameExists(person.name, teams)) {
+            error.textContent = `❌ "${person.name}" ist bereits in einem Team eingetragen.`;
             return;
         }
     }
@@ -148,7 +225,6 @@ surveyForm.addEventListener("submit", async e => {
     let teamNameInput = teamInput.value.trim();
     let teamName = "";
 
-    // Logik: 2–3 Personen → immer neues Team
     if (persons.length > 1) {
         if (!teamNameInput || teamNameInput.toLowerCase() === "zufall") {
             let name;
@@ -156,7 +232,6 @@ surveyForm.addEventListener("submit", async e => {
             await setDoc(doc(db, "teams", name), { members: [] });
             teamName = name;
         } else {
-            // Benutzerdefinierter Name → nur wenn noch nicht existiert
             if (teams[teamNameInput]) {
                 error.textContent = `❌ Teamname "${teamNameInput}" existiert bereits. Bitte anderen Namen wählen.`;
                 return;
@@ -165,7 +240,6 @@ surveyForm.addEventListener("submit", async e => {
             teamName = teamNameInput;
         }
     } else {
-        // 1 Person → alte Logik
         if (!teamNameInput || teamNameInput.toLowerCase() === "zufall") {
             teamName = await findOrCreateFreeTeam(teams);
         } else if (teams[teamNameInput] && teams[teamNameInput].length >= 3) {
@@ -189,7 +263,7 @@ surveyForm.addEventListener("submit", async e => {
 
     await setDoc(doc(db, "teams", teamName), { members }, { merge: true });
 
-    e.target.reset();
+    surveyForm.reset();
     teamInput.value = "Zufall";
 });
 
@@ -198,21 +272,36 @@ onSnapshot(teamsRef, snap => {
     tableBody.innerHTML = "";
     snap.forEach(d => {
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${d.id}</td><td>${d.data().members.join(", ")}</td>`;
-        tableBody.appendChild(tr);
+        d.data().members.forEach(m => {
+            const tdName = document.createElement("td");
+            tdName.textContent = m.name;
+            const tdTshirt = document.createElement("td");
+            tdTshirt.textContent = m.tshirt;
+            const tdSize = document.createElement("td");
+            tdSize.textContent = m.size;
+            const tdTeam = document.createElement("td");
+            tdTeam.textContent = d.id;
+            const row = document.createElement("tr");
+            row.appendChild(tdTeam);
+            row.appendChild(tdName);
+            row.appendChild(tdTshirt);
+            row.appendChild(tdSize);
+            tableBody.appendChild(row);
+        });
     });
 });
 
-/* CSV Download (Excel-kompatibel) */
+/* CSV Download */
 downloadBtn.addEventListener("click", async () => {
     const teams = await getAllTeams();
-    let csv = "Team,Teilnehmer\n";
+    let csv = "Team,Name,T-Shirt,Größe\n";
     for (const t in teams) {
-        csv += `"${t}","${teams[t].join(", ")}"\n`;
+        teams[t].forEach(m => {
+            csv += `"${t}","${m.name}","${m.tshirt}","${m.size}"\n`;
+        });
     }
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
-
     const a = document.createElement("a");
     a.href = url;
     a.download = `firmenlauf_teams.csv`;
