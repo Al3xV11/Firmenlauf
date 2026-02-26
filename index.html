@@ -131,16 +131,19 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebas
 import { getFirestore, collection, doc, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-/* 🔥 Firebase */
+/* 🔥 Firebase Config */
 const firebaseConfig = {
   apiKey: "AIzaSyDTk0mMhZ6eX1jzZuFIYEoHY38YZUcEpns",
   authDomain: "firmenlauf-8e694.firebaseapp.com",
-  projectId: "firmenlauf-8e694"
+  projectId: "firmenlauf-8e694",
+  storageBucket: "firmenlauf-8e694.firebasestorage.app",
+  messagingSenderId: "740730808511",
+  appId: "1:740730808511:web:11a5d055eb10790a453e0a",
+  measurementId: "G-N1BFHE44SJ"
 };
 
 const app = initializeApp(firebaseConfig);
 
-/* ✅ APP CHECK (WICHTIG) */
 initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
   isTokenAutoRefreshEnabled: true
