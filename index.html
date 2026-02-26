@@ -26,7 +26,7 @@ button {
 button:hover { background: #45a049; }
 
 label { font-weight: bold; display: block; margin-top: 10px; }
-small { display: block; color: #555; margin-bottom: 5px; }
+small { color: #555; }
 
 .person-group { margin-bottom: 15px; }
 
@@ -56,12 +56,7 @@ th { background: #f0f0f0; }
 }
 
 .error { color: red; margin-top: 10px; }
-
 #downloadBtn { display: none; margin-top: 10px; }
-
-@media (max-width: 500px) {
-  body { margin: 10px; }
-}
 </style>
 </head>
 
@@ -71,96 +66,49 @@ th { background: #f0f0f0; }
 
 <form id="surveyForm">
 
-  <!-- Person 1 -->
+  <!-- Personen -->
   <div class="person-group">
     <label>Person 1</label>
     <input id="p1" placeholder="Name" required>
     <div class="person-row">
-      <select id="tshirt1">
-        <option value="Nein">T-Shirt: Nein</option>
-        <option value="Ja">T-Shirt: Ja</option>
-      </select>
+      <select id="tshirt1"><option>Nein</option><option>Ja</option></select>
       <select id="size1">
         <option value="">Größe</option>
-        <optgroup label="Frauen">
-          <option value="Frauen S">S</option>
-          <option value="Frauen M">M</option>
-          <option value="Frauen L">L</option>
-          <option value="Frauen XL">XL</option>
-          <option value="Frauen 2XL">2XL</option>
-        </optgroup>
-        <optgroup label="Männer">
-          <option value="Männer S">S</option>
-          <option value="Männer M">M</option>
-          <option value="Männer L">L</option>
-          <option value="Männer XL">XL</option>
-          <option value="Männer 2XL">2XL</option>
-        </optgroup>
+        <option>Frauen S</option><option>Frauen M</option><option>Frauen L</option><option>Frauen XL</option><option>Frauen 2XL</option>
+        <option>Männer S</option><option>Männer M</option><option>Männer L</option><option>Männer XL</option><option>Männer 2XL</option>
       </select>
     </div>
   </div>
 
-  <!-- Person 2 -->
   <div class="person-group">
     <label>Person 2</label>
     <input id="p2" placeholder="Name">
     <div class="person-row">
-      <select id="tshirt2">
-        <option value="Nein">T-Shirt: Nein</option>
-        <option value="Ja">T-Shirt: Ja</option>
-      </select>
+      <select id="tshirt2"><option>Nein</option><option>Ja</option></select>
       <select id="size2">
         <option value="">Größe</option>
-        <optgroup label="Frauen">
-          <option value="Frauen S">S</option>
-          <option value="Frauen M">M</option>
-          <option value="Frauen L">L</option>
-          <option value="Frauen XL">XL</option>
-          <option value="Frauen 2XL">2XL</option>
-        </optgroup>
-        <optgroup label="Männer">
-          <option value="Männer S">S</option>
-          <option value="Männer M">M</option>
-          <option value="Männer L">L</option>
-          <option value="Männer XL">XL</option>
-          <option value="Männer 2XL">2XL</option>
-        </optgroup>
+        <option>Frauen S</option><option>Frauen M</option><option>Frauen L</option><option>Frauen XL</option><option>Frauen 2XL</option>
+        <option>Männer S</option><option>Männer M</option><option>Männer L</option><option>Männer XL</option><option>Männer 2XL</option>
       </select>
     </div>
   </div>
 
-  <!-- Person 3 -->
   <div class="person-group">
     <label>Person 3</label>
     <input id="p3" placeholder="Name">
     <div class="person-row">
-      <select id="tshirt3">
-        <option value="Nein">T-Shirt: Nein</option>
-        <option value="Ja">T-Shirt: Ja</option>
-      </select>
+      <select id="tshirt3"><option>Nein</option><option>Ja</option></select>
       <select id="size3">
         <option value="">Größe</option>
-        <optgroup label="Frauen">
-          <option value="Frauen S">S</option>
-          <option value="Frauen M">M</option>
-          <option value="Frauen L">L</option>
-          <option value="Frauen XL">XL</option>
-          <option value="Frauen 2XL">2XL</option>
-        </optgroup>
-        <optgroup label="Männer">
-          <option value="Männer S">S</option>
-          <option value="Männer M">M</option>
-          <option value="Männer L">L</option>
-          <option value="Männer XL">XL</option>
-          <option value="Männer 2XL">2XL</option>
-        </optgroup>
+        <option>Frauen S</option><option>Frauen M</option><option>Frauen L</option><option>Frauen XL</option><option>Frauen 2XL</option>
+        <option>Männer S</option><option>Männer M</option><option>Männer L</option><option>Männer XL</option><option>Männer 2XL</option>
       </select>
     </div>
   </div>
 
   <label>Team</label>
   <input id="team" value="Zufall">
-  <small>Bei „Zufall“ wird automatisch ein passendes Team gewählt.</small>
+  <small>Bei „Zufall“ erfolgt automatische Teamzuweisung.</small>
 
   <button type="submit">Absenden</button>
 </form>
@@ -171,12 +119,7 @@ th { background: #f0f0f0; }
 <h2>📋 Teams</h2>
 <table>
 <thead>
-<tr>
-  <th>Team</th>
-  <th>Name</th>
-  <th>T-Shirt</th>
-  <th>Größe</th>
-</tr>
+<tr><th>Team</th><th>Name</th><th>T-Shirt</th><th>Größe</th></tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
@@ -184,59 +127,71 @@ th { background: #f0f0f0; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-/* Firebase Config */
-const firebaseConfig = {
-  apiKey: "DEIN_API_KEY",
-  authDomain: "firmenlauf-8e694.firebaseapp.com",
-  projectId: "firmenlauf-8e694",
-  storageBucket: "firmenlauf-8e694.firebasestorage.app",
-  messagingSenderId: "740730808511",
-  appId: "1:740730808511:web:11a5d055eb10790a453e0a"
-};
-
-const app = initializeApp(firebaseConfig);
-initializeAppCheck(app, {
-  provider: new ReCaptchaV3Provider("DEIN_RECAPTCHA_KEY"),
-  isTokenAutoRefreshEnabled: true
-});
-
+/* Firebase */
+const app = initializeApp({ apiKey:"AIzaSyDTk0mMhZ6eX1jzZuFIYEoHY38YZUcEpns", projectId:"firmenlauf-8e694" });
 const db = getFirestore(app);
-const teamsRef = collection(db, "teams");
+const teamsRef = collection(db,"teams");
 
-const nameA = ["Byte","CPU","RAM","Pixel","Code","Server","GPU","Kernel"];
-const nameB = ["Runner","Sprint","Dash","Speed","Marathon","Track"];
-const randomTeamName = () =>
-  `${nameA[Math.floor(Math.random()*nameA.length)]} ${nameB[Math.floor(Math.random()*nameB.length)]} ${Math.floor(Math.random()*1000)}`;
+const teamInput = document.getElementById("team");
+const error = document.getElementById("error");
+const downloadBtn = document.getElementById("downloadBtn");
 
-async function getAllTeams() {
-  const snap = await getDocs(teamsRef);
-  const teams = {};
-  snap.forEach(d => teams[d.id] = d.data().members);
-  return teams;
+/* Download-Easter-Egg */
+let clicks = 0;
+teamInput.addEventListener("click",()=>{ if(++clicks>=5) downloadBtn.style.display="block"; });
+
+const teamNamesA=["Byte","CPU","RAM","Pixel","Code"];
+const teamNamesB=["Runner","Sprint","Dash","Speed"];
+const randomTeam=()=>`${teamNamesA[Math.random()*5|0]} ${teamNamesB[Math.random()*4|0]} ${Math.random()*1000|0}`;
+
+async function getAllTeams(){
+  const snap=await getDocs(teamsRef), t={};
+  snap.forEach(d=>t[d.id]=d.data().members);
+  return t;
 }
 
-/* Tabelle */
-onSnapshot(teamsRef, snap => {
-  tableBody.innerHTML = "";
-  snap.forEach(d => {
-    const head = document.createElement("tr");
-    head.className = "team-row team-separator";
-    head.innerHTML = `<td colspan="4">🏁 ${d.id}</td>`;
-    tableBody.appendChild(head);
+/* SUBMIT */
+surveyForm.addEventListener("submit",async e=>{
+  e.preventDefault(); error.textContent="";
+  const persons=[
+    {name:p1.value,tshirt:tshirt1.value,size:size1.value},
+    {name:p2.value,tshirt:tshirt2.value,size:size2.value},
+    {name:p3.value,tshirt:tshirt3.value,size:size3.value}
+  ].filter(p=>p.name);
 
-    d.data().members.forEach(m => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td></td>
-        <td>${m.name}</td>
-        <td>${m.tshirt}</td>
-        <td>${m.size || "-"}</td>
-      `;
-      tableBody.appendChild(tr);
+  if(!persons.length) return;
+
+  let teams=await getAllTeams();
+  let teamName=teamInput.value==="Zufall"?randomTeam():teamInput.value;
+
+  if(!teams[teamName]) await setDoc(doc(db,"teams",teamName),{members:[]});
+
+  teams[teamName]=[...(teams[teamName]||[]),...persons];
+  await setDoc(doc(db,"teams",teamName),{members:teams[teamName]},{merge:true});
+
+  surveyForm.reset(); teamInput.value="Zufall";
+});
+
+/* LIVE TABELLE */
+onSnapshot(teamsRef,snap=>{
+  tableBody.innerHTML="";
+  snap.forEach(d=>{
+    tableBody.innerHTML+=`<tr class="team-row team-separator"><td colspan="4">🏁 ${d.id}</td></tr>`;
+    d.data().members.forEach(m=>{
+      tableBody.innerHTML+=`<tr><td></td><td>${m.name}</td><td>${m.tshirt}</td><td>${m.size||"-"}</td></tr>`;
     });
   });
+});
+
+/* CSV */
+downloadBtn.addEventListener("click",async()=>{
+  const t=await getAllTeams();
+  let csv="Team,Name,T-Shirt,Größe\n";
+  for(const team in t) t[team].forEach(m=>csv+=`${team},${m.name},${m.tshirt},${m.size}\n`);
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([csv],{type:"text/csv"}));
+  a.download="firmenlauf.csv"; a.click();
 });
 </script>
 
