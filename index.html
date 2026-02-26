@@ -48,10 +48,12 @@ th, td {
 }
 th { background: #f0f0f0; }
 
-.team-row td {
-  background: #e9f5e9;
+.team-row {
   font-weight: bold;
 }
+
+.team-row.green td { background: #e9f5e9; }
+.team-row.blue td { background: #e0ecf5; }
 
 #error { color: red; margin-top: 10px; }
 #downloadBtn { display:none; margin-top:10px; }
@@ -143,7 +145,6 @@ const firebaseConfig = {
 };
 
 const app = initializeApp(firebaseConfig);
-
 initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
   isTokenAutoRefreshEnabled: true
@@ -154,17 +155,13 @@ const teamsRef = collection(db,"teams");
 
 /* T-Shirt → Größe */
 function bind(t,s){
-  t.addEventListener("change",()=>{
-    s.style.display = t.value==="Ja"?"block":"none";
-    if(t.value!=="Ja") s.value="";
-  });
+  t.addEventListener("change",()=>{ s.style.display = t.value==="Ja"?"block":"none"; if(t.value!=="Ja") s.value=""; });
 }
 bind(t1,s1); bind(t2,s2); bind(t3,s3);
 
 /* Submit */
 surveyForm.addEventListener("submit", async e => {
   e.preventDefault();
-
   const persons = [
     {name:p1.value.trim(), tshirt:t1.value, size:s1.value},
     {name:p2.value.trim(), tshirt:t2.value, size:s2.value},
@@ -173,9 +170,27 @@ surveyForm.addEventListener("submit", async e => {
 
   if (!persons.length) return;
 
-  let teamName = team.value.trim();
-  if (!teamName || teamName.toLowerCase()==="zufall") {
-    teamName = "Team " + Math.floor(Math.random()*10000);
+  let teamNameInput = team.value.trim();
+  let teamName = "";
+
+  if (!teamNameInput || teamNameInput.toLowerCase()==="zufall") {
+    if (persons.length === 1) {
+      // Einzelperson → in vorhandenes Team mit Platz, sonst neues
+      const snap = await getDocs(teamsRef);
+      let found=false;
+      snap.forEach(d=>{
+        if(!found && d.data().members.length<3){
+          teamName=d.id;
+          found=true;
+        }
+      });
+      if(!teamName) teamName="Team "+Math.floor(Math.random()*10000);
+    } else {
+      // 2-3 Personen → neues Team
+      teamName="Team "+Math.floor(Math.random()*10000);
+    }
+  } else {
+    teamName = teamNameInput;
   }
 
   await setDoc(doc(db,"teams",teamName), { members: persons }, { merge:true });
@@ -187,16 +202,37 @@ surveyForm.addEventListener("submit", async e => {
 /* Live Tabelle */
 onSnapshot(teamsRef, snap => {
   tableBody.innerHTML="";
+  let colorToggle=true;
   snap.forEach(d=>{
+    const colorClass=colorToggle?"green":"blue";
+    colorToggle=!colorToggle;
+
     const members=d.data().members.map(p =>
       `${p.name} (T-Shirt: ${p.tshirt}${p.size?", "+p.size:""})`
     ).join("<br>");
+
     tableBody.innerHTML+=`
-      <tr class="team-row">
+      <tr class="team-row ${colorClass}">
         <td>${d.id}</td>
         <td>${members}</td>
       </tr>`;
   });
+});
+
+/* CSV Download */
+downloadBtn.addEventListener("click", async ()=>{
+  const snap=await getDocs(teamsRef);
+  let csv="Team,Name,T-Shirt,Größe\n";
+  snap.forEach(d=>{
+    d.data().members.forEach(p=>{
+      csv+=`"${d.id}","${p.name}","${p.tshirt}","${p.size}"\n`;
+    });
+  });
+  const blob=new Blob([csv],{type:"text/csv;charset=utf-8;"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url; a.download="firmenlauf_teams.csv"; a.click();
+  URL.revokeObjectURL(url);
 });
 </script>
 
