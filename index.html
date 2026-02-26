@@ -34,9 +34,7 @@ button:hover { background: #45a049; }
 .person-row select { flex: 1; }
 
 @media (max-width: 600px) {
-  .person-row {
-    flex-direction: column;
-  }
+  .person-row { flex-direction: column; }
 }
 
 table {
@@ -56,7 +54,7 @@ th { background: #f0f0f0; }
 }
 
 #error { color: red; margin-top: 10px; }
-#downloadBtn { display: none; margin-top: 10px; }
+#downloadBtn { display:none; margin-top:10px; }
 </style>
 </head>
 
@@ -123,10 +121,7 @@ th { background: #f0f0f0; }
 <h2>📋 Teams</h2>
 <table>
 <thead>
-<tr>
-  <th>Team</th>
-  <th>Teilnehmer</th>
-</tr>
+<tr><th>Team</th><th>Teilnehmer</th></tr>
 </thead>
 <tbody id="tableBody"></tbody>
 </table>
@@ -134,24 +129,36 @@ th { background: #f0f0f0; }
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
 import { getFirestore, collection, doc, getDocs, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+import { initializeAppCheck, ReCaptchaV3Provider } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app-check.js";
 
-const app = initializeApp({
+/* 🔥 Firebase */
+const firebaseConfig = {
   apiKey: "AIzaSyDTk0mMhZ6eX1jzZuFIYEoHY38YZUcEpns",
   authDomain: "firmenlauf-8e694.firebaseapp.com",
   projectId: "firmenlauf-8e694"
+};
+
+const app = initializeApp(firebaseConfig);
+
+/* ✅ APP CHECK (WICHTIG) */
+initializeAppCheck(app, {
+  provider: new ReCaptchaV3Provider("6LdZpnYsAAAAANqU6pXftGa3Sq_TtVM6aOoIKYsG"),
+  isTokenAutoRefreshEnabled: true
 });
 
 const db = getFirestore(app);
-const teamsRef = collection(db, "teams");
+const teamsRef = collection(db,"teams");
 
-function bindTshirt(t, s) {
-  t.addEventListener("change", () => {
-    s.style.display = t.value === "Ja" ? "block" : "none";
-    if (t.value !== "Ja") s.value = "";
+/* T-Shirt → Größe */
+function bind(t,s){
+  t.addEventListener("change",()=>{
+    s.style.display = t.value==="Ja"?"block":"none";
+    if(t.value!=="Ja") s.value="";
   });
 }
-bindTshirt(t1,s1); bindTshirt(t2,s2); bindTshirt(t3,s3);
+bind(t1,s1); bind(t2,s2); bind(t3,s3);
 
+/* Submit */
 surveyForm.addEventListener("submit", async e => {
   e.preventDefault();
 
@@ -164,24 +171,24 @@ surveyForm.addEventListener("submit", async e => {
   if (!persons.length) return;
 
   let teamName = team.value.trim();
-  if (!teamName || teamName.toLowerCase() === "zufall") {
+  if (!teamName || teamName.toLowerCase()==="zufall") {
     teamName = "Team " + Math.floor(Math.random()*10000);
   }
 
   await setDoc(doc(db,"teams",teamName), { members: persons }, { merge:true });
 
   surveyForm.reset();
-  team.value = "Zufall";
+  team.value="Zufall";
 });
 
+/* Live Tabelle */
 onSnapshot(teamsRef, snap => {
-  tableBody.innerHTML = "";
-  snap.forEach(d => {
-    const members = d.data().members.map(p =>
-      `${p.name} (T-Shirt: ${p.tshirt}${p.size ? ", "+p.size : ""})`
+  tableBody.innerHTML="";
+  snap.forEach(d=>{
+    const members=d.data().members.map(p =>
+      `${p.name} (T-Shirt: ${p.tshirt}${p.size?", "+p.size:""})`
     ).join("<br>");
-
-    tableBody.innerHTML += `
+    tableBody.innerHTML+=`
       <tr class="team-row">
         <td>${d.id}</td>
         <td>${members}</td>
