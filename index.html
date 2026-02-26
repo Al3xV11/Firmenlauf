@@ -150,8 +150,12 @@ const teamsRef = collection(db,"teams");
 /* Zufallsnamen */
 const A=["Byte","CPU","Pixel","RAM","Cache","Kernel","GPU","Server","Code"];
 const B=["Runner","Sprint","Marathon","Dash","Speed","Stride","Flow","Turbo"];
-function randomTeamName(){
-  return `${A[Math.floor(Math.random()*A.length)]} ${B[Math.floor(Math.random()*B.length)]} ${Math.floor(Math.random()*1000)}`;
+function randomTeamName(existingTeams){
+  let name;
+  do {
+    name = `${A[Math.floor(Math.random()*A.length)]} ${B[Math.floor(Math.random()*B.length)]}`;
+  } while (existingTeams[name]);
+  return name;
 }
 
 /* T-Shirt → Größe */
@@ -179,26 +183,40 @@ surveyForm.addEventListener("submit", async e=>{
 
   let teamName=team.value.trim();
 
-  /* Zufall */
-  if(!teamName || teamName.toLowerCase()==="zufall"){
-    if(persons.length===1){
-      teamName=Object.keys(teams).find(t=>teams[t].length<3);
-      if(!teamName) teamName=randomTeamName();
-    } else {
-      teamName=randomTeamName();
+/* Zufall / Teamwahl */
+if (!teamName || teamName.toLowerCase() === "zufall") {
+  if (persons.length === 1) {
+    // zuerst freies Team suchen
+    teamName = Object.keys(teams).find(t => teams[t].length < 3);
+    if (!teamName) {
+      teamName = randomTeamName(teams);
     }
+  } else {
+    teamName = randomTeamName(teams);
   }
+}
 
-  const existing=teams[teamName]||[];
-  if(existing.length + persons.length > 3){
-    const ok=confirm(`Team "${teamName}" ist voll. Neues Team erstellen?`);
-    if(!ok) return;
-    teamName=randomTeamName();
+let members = teams[teamName] || [];
+
+// Team voll?
+if (members.length + persons.length > 3) {
+  const ok = confirm(`Team "${teamName}" ist voll. Willst du einem freien Team zugeordnet werden?`);
+  if (!ok) return;
+
+  // freies Team suchen
+  const freeTeam = Object.keys(teams).find(t => teams[t].length < 3);
+  if (freeTeam) {
+    teamName = freeTeam;
+    members = teams[freeTeam];
+  } else {
+    teamName = randomTeamName(teams);
+    members = [];
   }
+}
 
-  await setDoc(doc(db,"teams",teamName),{
-    members:[...(teams[teamName]||[]),...persons]
-  });
+await setDoc(doc(db, "teams", teamName), {
+  members: [...members, ...persons]
+});
 
   surveyForm.reset();
   team.value="Zufall";
