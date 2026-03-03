@@ -52,12 +52,26 @@ th { background: #f0f0f0; }
 .team-blue td { background:#e0ecf5; font-weight:bold; }
 
 #error { color: red; margin-top: 10px; }
+
+
+#countdown {
+  background: #f5f5f5;
+  padding: 15px;
+  font-size: 1.4em;
+  font-weight: bold;
+  text-align: center;
+}
+
 </style>
 </head>
 
 <body>
 
 <h2>🏃 Firmenlauf Anmeldung</h2>
+
+<div id="countdown">
+  Anmeldung schließt in <span id="time"></span>
+</div>
 
 <form id="surveyForm">
 
@@ -271,6 +285,35 @@ downloadBtn.addEventListener("click", async () => {
 
   URL.revokeObjectURL(url);
 });
+
+// Countdown
+
+const deadline = new Date("2026-03-30T18:00:00").getTime();
+
+const timer = setInterval(() => {
+  const now = new Date().getTime();
+  const diff = deadline - now;
+
+  if (diff <= 0) {
+    clearInterval(timer);
+    document.getElementById("time").innerHTML = "❌ Anmeldung geschlossen";
+    const btn = document.querySelector('button[type="submit"]');
+if (btn) {
+  btn.style.display = "none";
+}
+    return;
+  }
+  if (diff < 5*86400000) {
+  document.getElementById("countdown").style.color = "red";
+}
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+
+  document.getElementById("time").innerHTML =
+    `${days} Tage ${hours} Std ${minutes} Min ${seconds} Sek`;
+}, 1000);
 </script>
 
 </body>
